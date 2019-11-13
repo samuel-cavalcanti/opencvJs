@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Video Opencv.Js</title>
+    <script async src="js/opencv.js" onload="opencvLoaded();" ></script>
+
+</head>
+
+<body>
+   
+    <video id="video" width="1280" height="720" class="hidden">Your browser does not support video</video>
+    <canvas id="output"></canvas>
+    <input type="file" id="file_input" accept=".png , .jpeg , .mkv">
+   
+    <script>
+
+        let file_input = document.getElementById("file_input");
+        let video = document.getElementById("video");
+        let streaming = false;
+        let stream = null;
+        let videoCap = null;
+
+        let frame;
+        let gray_frame;
+        
+        file_input.addEventListener("change",(e) =>{
+            video.src = URL.createObjectURL(e.target.files[0]);
+        },false );
+
+
+
+        function opencvLoaded(){
+            video.controls = true;
+            video.addEventListener("play",start);
+            video.addEventListener("pause",pause);
+            video.addEventListener("ended",stop);
+            
+          
+
+        }
+
+
+
+
+       function start(){
+         streaming =true;
+        
+         videoCap = new cv.VideoCapture(video);
+         console.log(videoCap)
+         frame = new cv.Mat(video.height,video.width, cv.CV_8UC4);
+         gray_frame = new cv.Mat();
+
+         console.log(frame);
+
+
+         setTimeout(processVideo,0);
+
+       }
+
+       function pause(){
+         // faça algo ao pausar o vídeo
+
+
+       }
+
+       function stop(){
+           // faça algo ao vídeo acabar
+
+       }
+
+       
+       function processVideo(){
+            if (!streaming){
+                frame.delete();
+                gray_frame.delete();
+            }
+
+           const begin = Date.now();
+           videoCap.read(frame);
+           
+           cv.cvtColor(frame,gray_frame,cv.COLOR_RGB2GRAY);
+
+           cv.imshow("output",gray_frame);
+           
+           const delay = 1000/30 - (Date.now() - begin );
+
+           setTimeout(processVideo,delay);
+
+       }
+    
+    </script>
+
+</body>
+
+
+</html>
